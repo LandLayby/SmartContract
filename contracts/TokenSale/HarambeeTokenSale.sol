@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity 0.4.24;
 
 import '../Token/Owned.sol';
 import '../Math/SafeMath.sol'; 
@@ -19,9 +19,9 @@ contract HarambeeTokenSale is Owned {
 
 using SafeMath for uint256;
 
-mapping (address=> uint256) investors;
+mapping (address=> uint256) contributors;
     
-// start and end timestamps when investments are allowed  (both inclusive)
+// start and end timestamps when contributions are allowed  (both inclusive)
 uint256 public presalestartTime = 1525143600 ;     //1st may 6:00 am EAT
 uint256 public presaleendTime = 1527735600 ;       //31st may 6:00 am EAT
 uint256 public publicsalestartTime = 1530414000 ;  //1st july 6:00 am EAT
@@ -31,7 +31,7 @@ uint256 public publicsalesendTime = 1533006000 ;   //31st july 6:00 am EAT
 address wallet;
 
 // amount of raised money in wei
-uint256 public weiRaised;
+uint256 public weiRaised = 0;
 
 // The token being sold
 HarambeeToken public token;
@@ -41,9 +41,10 @@ bool hasPublicTokenSaleCapReached = false;
 
 /**
   * event for funds received logging
-  * @param investor who invested for the tokens     
+  * @param contributor who contributed for the tokens     
   */
-event InvestmentReceived(address indexed investor,uint256 value) ;
+event ContributionReceived(address indexed contributor,uint256 value) ;
+event TokensTransferred(address indexed contributor, uint256 numberOfTokensTransferred);
 
 
 function HarambeeTokenSale(HarambeeToken _addressOfRewardToken, address _wallet) public {        
@@ -59,28 +60,28 @@ function HarambeeTokenSale(HarambeeToken _addressOfRewardToken, address _wallet)
 // fallback function  used to buy tokens , this function is called when anyone sends ether to this contract
 function ()  payable public {  
 
-  require(msg.sender != address(0));                     //investors address should not be zero
-  require(msg.value != 0);                               //investment amount should be greater then zero            
-  require(isInvestementAllowed());                       //Valid time of investment and cap has not been reached
+  require(msg.sender != address(0));                     //contributors address should not be zero
+  require(msg.value != 0);                               //contribution amount should be greater then zero            
+  require(isContributionAllowed());                      //Valid time of contribution and cap has not been reached
 
   //forward fund received to Harambee multisig Account
   forwardFunds();            
 
-  // Add to investments with the investor
-  investors[msg.sender] = investors[msg.sender].add(msg.value);
+  // Add to contributions with the contributor
+  contributors[msg.sender] = contributors[msg.sender].add(msg.value);
   weiRaised = weiRaised.add(msg.value);
 
-  //Notify server that an investment has been received
-  InvestmentReceived(msg.sender,msg.value);
+  //Notify server that an contribution has been received
+  ContributionReceived(msg.sender,msg.value);
 }
 
 /**
- * This function is used to check if an investment is allowed or not
+ * This function is used to check if an contribution is allowed or not
  */
-function isInvestementAllowed() public view returns (bool) {
+function isContributionAllowed() public view returns (bool) {
      if (isPreSaleActive())
        return (!hasPreTokenSaleCapReached);
-     if (isPublicSaleActive())  
+     else if (isPublicSaleActive())  
        return  (!hasPublicTokenSaleCapReached);
     
        return false;
@@ -91,12 +92,12 @@ function forwardFunds() internal {
   wallet.transfer(msg.value);
 }
 
-//Whiteisting is 6 hours before the start time
+//Check if pre sale is active or not
 function isPreSaleActive() internal view returns (bool) {
  return ((now >= presalestartTime) && (now < presaleendTime));  
 }
 
-//Pre Token Sale time
+//Check if token sale is active or not
 function isPublicSaleActive() internal view returns (bool) {
  return ((now >= publicsalestartTime) && (now <= publicsalesendTime));  
 }    
@@ -113,12 +114,21 @@ function publicTokenSalesCapReached() public onlyOwner {
  hasPublicTokenSaleCapReached = true;
 }
 
-//This function is used to transfer token to investor after successful audit
-function transferToken(address _investor, uint _numberOfTokens) public onlyOwner {
+//This function is used to transfer token to contributor after successful audit
+function transferToken(address _contributor, uint _numberOfTokens) public onlyOwner {
       require(_numberOfTokens > 0);
-      require(_investor != 0);
-      require(_investor != msg.sender);
-      token.transfer(_investor, _numberOfTokens);
+      require(_contributor != 0);
+      require(_contributor != msg.sender);
+      token.transfer(_contributor, _numberOfTokens);
+      emit TokensTransferred(_contributor, _numberOfTokens);
 }
+
+//This function is used to do bulk transfer token to contributor after successful audit manually
+  function manualBatchTransferToken(uint256[] amount, address[] wallets) public onlyOwner {
+      for (uint256 i = 0; i < wallets.length; i++) {
+        token.transfer(wallets[i], amount[i]);
+        emit TokensTransferred(wallets[i], amount[i]);
+      }
+  }
 
 }

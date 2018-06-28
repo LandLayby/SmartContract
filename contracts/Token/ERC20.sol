@@ -1,5 +1,5 @@
 
-pragma solidity 0.4.18;
+pragma solidity 0.4.24;
 
 import '../Math/SafeMath.sol'; 
 
@@ -7,7 +7,7 @@ import '../Math/SafeMath.sol';
  * This is base ERC20 Contract , basically ERC-20 defines a common list of rules for all Ethereum tokens to follow
  */ 
 
-contract ERC20 {
+contract ERC20 is Pausable{
   
   using SafeMath for uint256;
 
@@ -27,10 +27,8 @@ contract ERC20 {
   // This notifies client about the approval done
   event Transfer(address indexed from, address indexed to, uint256 value);
 
-
-
    
-  function ERC20(uint256 _initialSupply,string _tokenName, string _tokenSymbol) public {    
+  constructor (uint256 _initialSupply,string _tokenName, string _tokenSymbol) public {    
     totalSupply = _initialSupply * 10 ** uint256(decimals); // Update total supply with the decimal amount     
     balanceOf[msg.sender] = totalSupply;  
     name = _tokenName;
@@ -41,7 +39,7 @@ contract ERC20 {
      * @param _to receiver address where transfer is to be done
      * @param _value value to be transferred
      */
-	function transfer(address _to, uint256 _value) public  returns (bool)  {      
+	function transfer(address _to, uint256 _value) public whenNotPaused returns (bool)  {      
         require(balanceOf[msg.sender] > 0);                     
         require(balanceOf[msg.sender] >= _value);                   // Check if the sender has enough  
         require(_to != address(0));                                 // Prevent transfer to 0x0 address. Use burn() instead
@@ -49,7 +47,7 @@ contract ERC20 {
         require(_to != msg.sender);                                 // Check if sender and receiver is not same
         balanceOf[msg.sender] = balanceOf[msg.sender].sub(_value);  // Subtract value from sender
         balanceOf[_to] = balanceOf[_to].add(_value);                // Add the value to the receiver
-        Transfer(msg.sender, _to, _value);                          // Notify all clients about the transfer events
+        emit Transfer(msg.sender, _to, _value);                     // Notify all clients about the transfer events
         return true;
 	}
 
@@ -64,7 +62,7 @@ contract ERC20 {
          address _from,
          address _to,
          uint256 _amount
-     ) public returns (bool success)
+     ) public whenNotPaused returns (bool success)
       { 
         require(balanceOf[_from] >= _amount);
         require(allowed[_from][msg.sender] >= _amount);
@@ -74,6 +72,7 @@ contract ERC20 {
         balanceOf[_from] = balanceOf[_from].sub(_amount);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);
         balanceOf[_to] = balanceOf[_to].add(_amount);
+        emit Transfer(_from, _to, _amount);
         return true;        
     }
     
@@ -82,10 +81,10 @@ contract ERC20 {
      * @param _spender address of the spender
      * @param _amount amount allowed to be withdrawal
      */
-     function approve(address _spender, uint256 _amount) public returns (bool success) {    
+     function approve(address _spender, uint256 _amount) public whenNotPaused  returns (bool success) {    
          require(msg.sender!=_spender);  
          allowed[msg.sender][_spender] = _amount;
-         Approval(msg.sender, _spender, _amount);
+         emit Approval(msg.sender, _spender, _amount);
          return true;
     } 
 

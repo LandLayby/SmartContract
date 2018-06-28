@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity 0.4.24;
 
 import "../Token/HarambeeToken.sol";
 import "../Token/Owned.sol";
@@ -7,8 +7,7 @@ import "../Math/SafeMath.sol";
 
 /**
  * @title TokenVesting
- * @dev A token holder contract that can release its token balance gradually like a
- * typical vesting scheme
+ * @dev A token holder contract that can release its token balance vesting scheme
  */
 contract TokenVesting is Owned {
   using SafeMath for uint256;
@@ -18,7 +17,7 @@ contract TokenVesting is Owned {
 
   // beneficiary of tokens after they are released
   address public beneficiary;
-
+  
   uint256 public start;
   uint256 public duration;
 
