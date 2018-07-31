@@ -22,10 +22,10 @@ using SafeMath for uint256;
 mapping (address=> uint256) contributors;
     
 // start and end timestamps when contributions are allowed  (both inclusive)
-uint256 public presalestartTime = 1525143600 ;     //1st may 6:00 am EAT
-uint256 public presaleendTime = 1527735600 ;       //31st may 6:00 am EAT
-uint256 public publicsalestartTime = 1530414000 ;  //1st july 6:00 am EAT
-uint256 public publicsalesendTime = 1533006000 ;   //31st july 6:00 am EAT
+uint256 public presalestartTime = 1535770800;     //1st september 6:00am EAT          
+uint256 public presaleendTime = 1536980399;       //15th september 6:00am EAT    
+uint256 public publicsalestartTime = 1538362800;  //1st october 6:00 am EAT       
+uint256 public publicsalesendTime = 1540954799;   //31st october 6:00 am EAT       
 
 // address where all funds collected from token sale are stored , this will ideally be address of MutliSig wallet
 address wallet;

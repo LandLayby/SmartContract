@@ -11,7 +11,7 @@ contract HarambeeToken is Owned, ERC20 {
 
     using SafeMath for uint256;
 
-    uint256  public tokenSupply = 1000000000; 
+    uint256  public tokenSupply = 500000000; 
             
     //This notifies clients about the number of tokens minted        
     event TokensMinted(address owner,uint256 value);
