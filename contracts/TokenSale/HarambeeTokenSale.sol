@@ -47,7 +47,7 @@ event ContributionReceived(address indexed contributor,uint256 value) ;
 event TokensTransferred(address indexed contributor, uint256 numberOfTokensTransferred);
 
 
-function HarambeeTokenSale(HarambeeToken _addressOfRewardToken, address _wallet) public {        
+constructor (HarambeeToken _addressOfRewardToken, address _wallet) public {        
   require(presalestartTime >= now); 
   require(_wallet != address(0));   
     
@@ -61,7 +61,7 @@ function HarambeeTokenSale(HarambeeToken _addressOfRewardToken, address _wallet)
 function ()  payable public {  
 
   require(msg.sender != address(0));                     //contributors address should not be zero
-  require(msg.value != 0);                               //contribution amount should be greater then zero            
+  require(msg.value >= 0);                               //contribution amount should be greater then zero            
   require(isContributionAllowed());                      //Valid time of contribution and cap has not been reached
 
   //forward fund received to Harambee multisig Account
@@ -72,7 +72,7 @@ function ()  payable public {
   weiRaised = weiRaised.add(msg.value);
 
   //Notify server that an contribution has been received
-  ContributionReceived(msg.sender,msg.value);
+  emit ContributionReceived(msg.sender,msg.value);
 }
 
 /**
