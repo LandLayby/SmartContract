@@ -11,7 +11,7 @@ contract HarambeeToken is Owned, ERC20 {
 
     using SafeMath for uint256;
 
-    uint256  public tokenSupply = 500000000; 
+    uint256  public tokenSupply = 1000000000; 
             
     //This notifies clients about the number of tokens minted        
     event TokensMinted(address owner,uint256 value);
@@ -28,15 +28,6 @@ contract HarambeeToken is Owned, ERC20 {
 		owner = msg.sender;
 	}
           
-    /* This function is used to mint additional tokens
-     * only admin can invoke this function
-     * @param _mintedAmount amount of tokens to be minted  
-     */
-    function mintTokens(uint256 _mintedAmount) public onlyOwner {
-        balanceOf[owner] = balanceOf[owner].add(_mintedAmount);
-        totalSupply = totalSupply.add(_mintedAmount);
-        emit TokensMinted(owner,_mintedAmount);      
-    }    
 
     /**
     * This function Burns a specific amount of tokens.
